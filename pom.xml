@@ -33,6 +33,10 @@
         <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
     </properties>
 
+    <modules>
+        <module>mybatis-001</module>
+    </modules>
+
     <!-- 统一约束依赖版本；此处声明的依赖不会自动加入任何子模块。 -->
     <dependencyManagement>
         <dependencies>
