@@ -1,0 +1,71 @@
+# Java: compiled classes and packaged artifacts
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Java build tools
+target/
+build/
+out/
+.gradle/
+
+# Maven release and backup files
+release.properties
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Node.js dependencies, package-manager caches, and logs
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/install-state.gz
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node.js build output and test coverage
+dist/
+coverage/
+.next/
+.nuxt/
+.svelte-kit/
+.vite/
+.turbo/
+*.tsbuildinfo
+
+# Local environment files; commit an example template when needed
+.env
+.env.*
+!.env.example
+
+# IDE and editor settings
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*~

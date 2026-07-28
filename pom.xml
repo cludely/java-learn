@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maven POM 根元素；命名空间和 schemaLocation 用于定义并校验 POM 的 XML 格式。 -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- Maven POM 模型版本；当前 Maven 项目通常固定使用 4.0.0。 -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 组织或项目的唯一标识前缀；创建子模块后可继承该值。 -->
+    <groupId>com.example</groupId>
+    <!-- 当前根项目的名称；与 groupId 和 version 一起构成 Maven 坐标。 -->
+    <artifactId>java-learn</artifactId>
+    <!-- 当前项目版本；SNAPSHOT 表示仍处于开发阶段，可被 Maven 更新。 -->
+    <version>1.0-SNAPSHOT</version>
+    <!-- 打包类型为 POM，表示该项目用于聚合模块和提供父配置，不生成 JAR。 -->
+    <packaging>pom</packaging>
+
+    <!-- 供 Maven 日志和 IDE 展示的人类可读名称。 -->
+    <name>java-learn</name>
+
+    <!-- 可在 POM 其他位置通过 ${属性名} 引用的统一配置和版本号。 -->
+    <properties>
+        <!-- 源代码和资源文件的默认字符编码，避免不同系统出现乱码。 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- maven-compiler-plugin 的 Java 发布版本；21 同时约束语言特性和可用 JDK API。 -->
+        <maven.compiler.release>21</maven.compiler.release>
+
+        <!-- JUnit 依赖版本；子模块通过 ${junit.version} 或下方依赖管理使用它。 -->
+        <junit.version>5.11.4</junit.version>
+        <!-- Java 编译插件版本。 -->
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <!-- 运行单元测试的 Surefire 插件版本。 -->
+        <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
+    </properties>
+
+    <!-- 统一约束依赖版本；此处声明的依赖不会自动加入任何子模块。 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- JUnit 5 聚合依赖，包含编写和运行 JUnit Jupiter 测试所需组件。 -->
+            <dependency>
+                <!-- 依赖所属组织。 -->
+                <groupId>org.junit.jupiter</groupId>
+                <!-- 依赖名称；子模块声明相同坐标时可省略 version 和 scope。 -->
+                <artifactId>junit-jupiter</artifactId>
+                <!-- 引用 properties 中集中维护的 JUnit 版本。 -->
+                <version>${junit.version}</version>
+                <!-- 仅测试阶段可用，不会打包进子模块的生产产物。 -->
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 构建相关配置。 -->
+    <build>
+        <!-- 统一约束插件版本；子模块实际使用插件时会继承这些版本。 -->
+        <pluginManagement>
+            <plugins>
+                <!-- 负责把 Java 源码编译为字节码。 -->
+                <plugin>
+                    <!-- compiler 插件使用 Maven 默认组织，因此可省略 groupId。 -->
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <!-- 引用 properties 中集中维护的编译插件版本。 -->
+                    <version>${maven.compiler.plugin.version}</version>
+                </plugin>
+                <!-- 负责发现并运行单元测试。 -->
+                <plugin>
+                    <!-- surefire 插件使用 Maven 默认组织，因此可省略 groupId。 -->
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <!-- 引用 properties 中集中维护的测试插件版本。 -->
+                    <version>${maven.surefire.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
