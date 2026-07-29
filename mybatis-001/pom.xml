@@ -13,13 +13,16 @@
   <groupId>org.example</groupId>
   <artifactId>mybatis-001</artifactId>
   <name>mybatis-001</name>
+  <packaging>jar</packaging>
 
   <dependencies>
+    <!-- 引入mybatis依赖 -->
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
       <version>3.5.19</version>
     </dependency>
+    <!-- 引入mysql驱动 -->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
