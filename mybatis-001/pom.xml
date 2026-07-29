@@ -12,7 +12,6 @@
 
   <groupId>org.example</groupId>
   <artifactId>mybatis-001</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <name>mybatis-001</name>
 
   <dependencies>
@@ -24,7 +23,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.24</version>
+      <version>8.0.28</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
