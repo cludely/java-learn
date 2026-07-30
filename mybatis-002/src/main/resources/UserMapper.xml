@@ -36,4 +36,27 @@
             id = #{id}
     </update>
 
+    <!-- parameterType 数据将传递给 #{} -->
+    <!-- resultType 属性用来告诉 mybatis 框架，将查询结果集封装为什么类型的对象 -->
+    <!-- 这里查询到了之后，是通过 set 方法给属性赋值的 -->
+    <!-- 若存在数据库字段名与对象字段名对不上的情况，导致对象属性被赋值为 null, 可以用别名来解决 -->
+    <!-- 比如数据库中字段名为 user_name，对象属性set方法名为 setName -->
+    <!-- 那么可以 user_name as name -->
+    <select id="selectUserById" parameterType="Long" resultType="com.example.mybatis.entity.User">
+        select
+            id, name, age, sex
+        from
+            t_user
+        where
+            id = #{id}
+    </select>
+
+    <!-- resultType 不是 List，而是 List中具体元素的类型 -->
+    <select id="selectUserAll" resultType="com.example.mybatis.entity.User">
+        select
+            id, name, age, sex
+        from
+            t_user
+    </select>
+
 </mapper>

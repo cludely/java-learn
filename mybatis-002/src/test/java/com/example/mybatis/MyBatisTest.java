@@ -6,6 +6,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MyBatisTest {
@@ -71,6 +72,34 @@ public class MyBatisTest {
 
             int count = sqlSession.update("updateUserById", user);
             System.out.println("更新了" + count + "条记录");
+            sqlSession.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testSelectById() {
+        try(SqlSession sqlSession = SqlSessionUtil.openSession()) {
+            // 执行查询语句
+            User user = (User)sqlSession.selectOne("selectUserById", 13L);
+            System.out.println("查询到了" + user);
+            sqlSession.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public  void testSelectAll() {
+        try(SqlSession sqlSession = SqlSessionUtil.openSession()) {
+            List<User> userList = sqlSession.selectList("selectUserAll");
+            userList.forEach(System.out::println);
+
+            // 也可用List接受
+            List<User> userList2 = sqlSession.selectList("selectUserById", 13L);
+            userList2.forEach(System.out::println);
+
             sqlSession.commit();
         } catch (Exception e) {
             e.printStackTrace();

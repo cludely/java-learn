@@ -30,6 +30,7 @@ public class User {
     }
 
     public void setId(Long id) {
+        System.out.println("setId方法执行了");
         this.id = id;
     }
 
