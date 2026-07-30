@@ -22,4 +22,18 @@
         (null, #{name}, #{age}, #{sex})
     </insert>
 
+    <!-- mybatis 中，当一个SQL语句的占位符只有一个的时候，#{}的内容可以随便写 -->
+    <delete id="deleteUserById">
+        delete from t_user where id = #{id}
+    </delete>
+
+    <update id="updateUserById" parameterType="com.example.mybatis.entity.User">
+        update t_user set
+            name = #{name},
+            age = #{age},
+            sex = #{sex}
+        where
+            id = #{id}
+    </update>
+
 </mapper>

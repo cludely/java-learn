@@ -48,4 +48,32 @@ public class MyBatisTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testDeleteById() {
+        try(SqlSession sqlSession = SqlSessionUtil.openSession()) {
+            int count = sqlSession.delete("deleteUserById", 12);
+            System.out.println("删除了" + count + "条数据");
+            sqlSession.commit();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testUpdateById() {
+        try(SqlSession sqlSession = SqlSessionUtil.openSession()) {
+            User user = new User();
+            user.setAge(20);
+            user.setName("李四");
+            user.setSex("女");
+            user.setId(13L);
+
+            int count = sqlSession.update("updateUserById", user);
+            System.out.println("更新了" + count + "条记录");
+            sqlSession.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
