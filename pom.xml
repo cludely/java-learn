@@ -35,6 +35,7 @@
 
     <modules>
         <module>mybatis-001</module>
+        <module>mybatis-002</module>
     </modules>
 
     <!-- 统一约束依赖版本；此处声明的依赖不会自动加入任何子模块。 -->
