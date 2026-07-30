@@ -9,7 +9,17 @@
         insert into t_user
         (id, name, age, sex)
         value
-        (null, #{k1}, #{k2}, #{k3})
+        (null, #{name}, #{age}, #{sex})
+    </insert>
+
+    <!-- parameterType 用来指定参数的类型，大部分情况下不用写 -->
+    <!-- #{name} 底层会优先调用 user.getName() 方法来获取 name 属性的值 -->
+    <!-- 没有 user.getName() 方法则降级为用 user.name 来获取 name 属性的值 -->
+    <insert id="insertUser2" parameterType="com.example.mybatis.entity.User">
+        insert into t_user
+        (id, name, age, sex)
+        value
+        (null, #{name}, #{age}, #{sex})
     </insert>
 
 </mapper>
