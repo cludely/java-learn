@@ -15,6 +15,8 @@ public class SqlSessionUtil {
 
     private SqlSessionUtil() {}
 
+    private static ThreadLocal<SqlSession> sqlSessionThreadLocal = new ThreadLocal<>();
+
     // 静态代码块：类加载时执行，创建 SqlSessionFactory 对象
     // 因为整个项目只需要1个SqlSessionFactory对象
     static {
@@ -30,6 +32,17 @@ public class SqlSessionUtil {
      * @return 返回一个 SqlSession 对象
      */
     public static SqlSession openSession() {
-        return sqlSessionFactory.openSession();
+        // 一个线程绑定一个 SqlSession 对象
+        SqlSession sqlSession = sqlSessionThreadLocal.get();
+        if(sqlSession == null) {
+            sqlSession = sqlSessionFactory.openSession();
+            sqlSessionThreadLocal.set(sqlSession);
+        }
+        return sqlSession;
+    }
+
+    // 解绑
+    public static void closeSession() {
+        sqlSessionThreadLocal.remove();
     }
 }
