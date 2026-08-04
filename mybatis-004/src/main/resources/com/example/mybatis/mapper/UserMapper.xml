@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mybatis.mapper.UserMapper">
+    <select id="selectByCondition" resultType="com.example.mybatis.entity.User">
+        select * from t_user where
+        <!-- 条件成立，表示用户已提供 name 参数 -->
+        <!-- name 模糊查询 -->
+        <if test="name != null and name != ''">
+            name like concat('%', #{name}, '%')
+        </if>
+        <if test="sex != null and sex != ''">
+            and sex = #{sex}
+        </if>
+        <if test="age != null and age != ''">
+            and age = #{age}
+        </if>
+    </select>
+
+    <select id="selectByCondition2" resultType="com.example.mybatis.entity.User">
+        select * from t_user
+        <!-- where 标签会自动去除某些 sql 语句前面的 and|or 关键字 -->
+        <where>
+            <!-- 条件成立，表示用户已提供 name 参数 -->
+            <!-- name 模糊查询 -->
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="sex != null and sex != ''">
+                and sex = #{sex}
+            </if>
+            <if test="age != null and age != ''">
+                and age = #{age}
+            </if>
+        </where>
+    </select>
+</mapper>
