@@ -10,4 +10,10 @@ public class FirstController {
     public String hello() {
         return "first";
     }
+
+    // 一个controller可以写多个方法
+    @RequestMapping("/other")
+    public String other() {
+        return "other";
+    }
 }
