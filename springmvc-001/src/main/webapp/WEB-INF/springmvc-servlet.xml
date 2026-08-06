@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Spring MVC 子容器配置文件。
+
+    当前文件由 web.xml 中名为 springmvc 的 DispatcherServlet 自动加载：
+    servlet-name 为 springmvc 时，默认配置文件位置就是 /WEB-INF/springmvc-servlet.xml。
+
+    Spring MVC 的基本处理流程：
+    浏览器请求 -> DispatcherServlet -> HandlerMapping -> Controller
+    -> ViewResolver -> Thymeleaf 模板 -> HTTP 响应。
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--
+        1. 组件扫描
+        扫描指定包及其子包中带有 @Controller、@Service、@Repository、@Component
+        等注解的类，并将它们注册为 Spring Bean。
+
+        此处主要使 com.example.springmvc.controller 下的 FirstController 生效。
+        项目规模较小时扫描根包方便学习；实际项目通常按 Web 层、业务层、数据层
+        分别由不同的 Spring 容器管理，以避免职责混杂。
+    -->
+    <context:component-scan base-package="com.example.springmvc"/>
+
+    <!--
+        2. 启用基于注解的 Spring MVC 能力
+        此配置会注册 Spring MVC 的核心组件，例如：
+        - RequestMappingHandlerMapping：根据 @RequestMapping、@GetMapping 等注解匹配请求；
+        - RequestMappingHandlerAdapter：调用匹配到的 Controller 方法；
+        - HttpMessageConverter：负责 @RequestBody、@ResponseBody 的请求体转换；
+        - ConversionService：负责请求参数到 Java 类型的转换，例如 String 转 Integer 或 LocalDate。
+
+        加入该标签后，Controller 方法可以直接使用 @RequestMapping、@RequestParam、
+        @PathVariable、@ResponseBody 等常用注解。
+    -->
+    <mvc:annotation-driven/>
+
+    <!--
+        3. 静态资源放行
+        DispatcherServlet 在 web.xml 中映射到 /，会先接收到 CSS、JavaScript、图片等请求。
+        此规则使 /static/** 请求交由 WebMvc 的资源处理器，从 classpath:/static/ 读取资源，
+        避免这些请求被误当作 Controller 请求而产生 404。
+
+        示例：src/main/resources/static/css/site.css 可通过 /static/css/site.css 访问。
+        如果暂时没有静态资源目录，保留这段配置也不会影响 Controller 的正常工作。
+    -->
+    <mvc:resources mapping="/static/**" location="classpath:/static/"/>
+
+    <!--
+        4. 默认 Servlet 处理器
+        对于没有匹配 Controller、也不满足上方静态资源规则的请求，转交给 Web 容器的默认 Servlet。
+        它适合处理 webapp 根目录下的静态文件。若请求确实不存在，最终仍由容器返回 404。
+        注意：该配置必须在 <mvc:annotation-driven/> 之后声明。
+    -->
+    <mvc:default-servlet-handler/>
+
+    <!--
+        5. Thymeleaf 模板解析器
+        Controller 返回逻辑视图名（如 "hello"）时，模板解析器负责定位实际模板文件。
+        prefix + 视图名 + suffix 即实际路径：
+        "hello" -> /WEB-INF/templates/hello.html。
+
+        WEB-INF 下的模板不能被浏览器直接访问，必须经由 Controller 渲染，
+        这可避免用户绕过控制器直接请求页面。
+    -->
+    <bean id="templateResolver"
+          class="org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver">
+        <property name="prefix" value="/WEB-INF/templates/"/>
+        <property name="suffix" value=".html"/>
+        <property name="characterEncoding" value="UTF-8"/>
+        <!-- 开发阶段可关闭缓存，修改 HTML 后无需重启；生产环境应设为 true。 -->
+        <property name="cacheable" value="false"/>
+    </bean>
+
+    <!--
+        6. Thymeleaf 模板引擎
+        模板引擎使用上方的模板解析器读取 HTML，再结合 Controller 传入的 Model 数据完成渲染。
+        该 Bean 的 id 必须与下面 ThymeleafViewResolver 的 templateEngine 属性对应。
+    -->
+    <bean id="templateEngine" class="org.thymeleaf.spring6.SpringTemplateEngine">
+        <property name="templateResolver" ref="templateResolver"/>
+        <!-- 开启 Spring EL，使模板可使用 ${user.name} 等表达式读取模型数据。 -->
+        <property name="enableSpringELCompiler" value="true"/>
+    </bean>
+
+    <!--
+        7. Thymeleaf 视图解析器
+        Controller 返回的 String 默认会被视为逻辑视图名，而不是响应正文。
+        此解析器把逻辑视图名转换为 ThymeleafView，并交给 templateEngine 渲染。
+
+        例如：
+        @GetMapping("/hello")
+        public String hello() { return "hello"; }
+        将渲染 /WEB-INF/templates/hello.html。
+
+        characterEncoding 确保中文页面以 UTF-8 输出；order 用于多个 ViewResolver 共存时确定优先级，
+        数值越小优先级越高。
+    -->
+    <bean class="org.thymeleaf.spring6.view.ThymeleafViewResolver">
+        <property name="templateEngine" ref="templateEngine"/>
+        <property name="characterEncoding" value="UTF-8"/>
+        <property name="order" value="1"/>
+    </bean>
+
+    <!--
+        8. 统一异常处理（学习阶段先保留默认行为）
+        Spring MVC 默认会把未处理异常交由容器处理。后续可通过 @ControllerAdvice + @ExceptionHandler
+        编写全局异常处理类；多数场景下比 XML 的 SimpleMappingExceptionResolver 更灵活。
+    -->
+
+</beans>

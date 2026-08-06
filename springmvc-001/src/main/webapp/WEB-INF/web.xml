@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+               https://jakarta.ee/xml/ns/jakartaee
+               https://jakarta.ee/xml/ns/jakartaee/web-app_6_1.xsd"
+         version="6.1">
+
+    <!-- 配置前端控制器，SpringMVC框架内置好的 -->
+    <!-- 在SpringMVC中，所有的请求过来之后，都要先经过前端控制器，除非你是JSP的请求路径 -->
+    <servlet>
+        <servlet-name>springmvc</servlet-name>
+        <!-- DispatcherServlet 是SpringMVC框架提供的最核心的类。他是整个SpringMVC框架的前端控制器，负责接受HTTP请求，将请求路由到处理程序，处理响应信息，最终将响应返回给客户端 -->
+        <!-- DispatcherServlet 是Web应用程序的主要入口点之一，他的职责包括： -->
+        <!-- 1. 接受客户端的HTTP请求：DispatcherServlet 监听来自Web浏览器的HTTP请求，然后根据请求的URL将请求数据解析为Request对象 -->
+        <!-- 2. 处理请求的URL: DispatcherServlet将请求的URL与处理程序进行匹配，确定要调用哪个控制器来处理此请求 -->
+        <!-- 3. 调用相应的控制器：DispatcherServlet将请求发送给找到的控制器处理，控制器将执行业务逻辑，然后返回一个模型对象 -->
+        <!-- 4. 渲染视图：DispatcherServlet将调用视图引擎，将模型对象呈现为用户可以查看的HTML页面 -->
+        <!-- 5. 返回响应给客户端：DispatcherServlet将生成的响应发送回浏览器 -->
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>springmvc</servlet-name>
+        <!-- 1. / 是 SpringMVC 官方推荐写法 -->
+        <!-- 2. /* 会拦截所有请求，包括 xx.jsp，但 jsp 应该交由 web 容器内置的 JspServlet 自动处理，SpringMVC 不应该拦截 -->
+        <!-- 3. / 拦截的是所有其他 Servlet 不要的请求，不过在 spring mvc 开发中我们之编写一个 DispatcherServlet，不需要编写其他的 Servlet,在这种情况下，我们可以等同认为 / 拦截了除 jsp 之外的所有请求 -->
+        <!-- 4. / 会拦截所有的静态资源 -->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>
