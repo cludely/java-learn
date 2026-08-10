@@ -1,7 +1,10 @@
 package com.example.springmvc.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * {@code @RequestMapping} 用于建立“请求条件”与 Controller 或处理方法之间的映射关系。
@@ -49,7 +52,7 @@ public class FirstController {
      * 任意 HTTP 方法都能匹配；若这是展示页面，更推荐使用 {@code @GetMapping("/hello")}。
      *
      * @return 逻辑视图名 {@code first}，将由 Thymeleaf 解析为
-     *         {@code /WEB-INF/templates/first.html}
+     * {@code /WEB-INF/templates/first.html}
      */
     @RequestMapping("/hello")
     public String hello() {
@@ -60,5 +63,26 @@ public class FirstController {
     @RequestMapping("/other")
     public String other() {
         return "other";
+    }
+
+    // 测试 RESTFul 风格 api
+    // 当用户请求 /testPath/xxx/xxx/xxx 是匹配该 Controller
+    @RequestMapping("/testPath/{id}/{name}/{age}")
+    public String testRestful(
+            @PathVariable("id") Integer id,
+            @PathVariable("name") String name,
+            @PathVariable("age") Integer age
+    ) {
+        System.out.println(id + name + age);
+        return "first";
+    }
+
+    // params 控制前端必须提交什么参数或者不能提交什么参数
+    // params={"!username", "password"} 表示请求参数中必须包含 password，且必须不包含 username
+    // params={"username=admin", "password"} 表示请求参数中必须包含 username 和 password, 且username的值必须是 admin
+    // params={"username!=admin", "password"} 表示请求参数中必须包含 username 和 password, 且username的值必须不是 admin
+    @GetMapping(value = "/testParam", params = {"username!=admin", "password"})
+    public String testParam() {
+        return "first";
     }
 }
