@@ -1,12 +1,21 @@
 package com.example.springmvc.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/user")
 public class TestController {
@@ -78,6 +87,92 @@ public class TestController {
      */
     @PostMapping(value = "/users", consumes = "application/json")
     public String createUserByJson(@RequestBody UserRequest userRequest) {
+        return "first";
+    }
+
+    /**
+     * 对比四：请求体为 {@code multipart/form-data} 时，普通字段仍使用
+     * {@code @RequestParam}，文件字段使用 {@link MultipartFile} 接收。
+     *
+     * <p>例如下面的请求包含一个文本字段 {@code username} 和一个文件字段 {@code avatar}：</p>
+     * <pre>{@code
+     * POST /user/profile
+     * Content-Type: multipart/form-data; boundary=...
+     *
+     * username=zhangsan
+     * avatar=<选择的文件>
+     * }</pre>
+     * <p>也可以使用 curl 发起请求：</p>
+     * <pre>{@code
+     * curl -X POST http://localhost:8080/springmvc-001/user/profile \
+     *      -F "username=zhangsan" \
+     *      -F "avatar=@D:/files/avatar.png"
+     * }</pre>
+     *
+     * <p>{@code multipart/form-data} 会将请求体拆成多个 part。Spring MVC 将普通文本 part
+     * 作为请求参数绑定，因此可以继续使用 {@code @RequestParam("username")}；文件 part
+     * 则可直接绑定为 {@code MultipartFile}，通过 {@code getOriginalFilename()}、
+     * {@code getContentType()}、{@code getInputStream()} 等方法读取文件信息和内容。</p>
+     *
+     * <p>这里不使用 {@code @RequestBody}，因为它表示读取并转换整个请求体，不适合分别获取
+     * multipart 中的字段。如果某个 part 本身是 JSON 等需要消息转换器解析的内容，可以改用
+     * {@code @RequestPart("user") UserRequest userRequest}。</p>
+     *
+     * <p>要实际处理文件上传，项目还需要启用 multipart 解析：注册名为
+     * {@code multipartResolver} 的解析器，并为 {@code DispatcherServlet} 配置
+     * {@code multipart-config}。</p>
+     *
+     * <p>本案例将文件流式保存到系统临时目录下的 {@code springmvc-001-uploads} 目录。
+     * 实际项目还应根据业务要求限制文件大小和允许的文件类型；客户端传来的原文件名和
+     * {@code Content-Type} 都不能作为可信的安全校验依据。</p>
+     */
+    @PostMapping(value = "/profile", consumes = "multipart/form-data")
+    public String updateProfileByMultipart(
+            @RequestParam("username") String username,
+            @RequestParam("avatar") MultipartFile avatar,
+            Model model
+    ) throws IOException {
+        // 参数存在不代表用户一定选择了文件，空文件需要单独判断。
+        if (avatar.isEmpty()) {
+            throw new IllegalArgumentException("上传文件不能为空");
+        }
+
+        String originalFilename = avatar.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new IllegalArgumentException("上传文件名不能为空");
+        }
+
+        String contentType = avatar.getContentType();
+        long fileSize = avatar.getSize();
+
+        Path uploadDirectory = Path.of(
+                System.getProperty("java.io.tmpdir"),
+                "springmvc-001-uploads"
+        ).toAbsolutePath().normalize();
+        Files.createDirectories(uploadDirectory);
+
+        // 客户端文件名可能包含路径，只保留最后一段，并用 UUID 避免同名覆盖。
+        Path filenamePath = Path.of(originalFilename.replace('\\', '/')).getFileName();
+        if (filenamePath == null || filenamePath.toString().isBlank()) {
+            throw new IllegalArgumentException("非法的上传文件名");
+        }
+        String safeOriginalFilename = filenamePath.toString();
+        String storedFilename = UUID.randomUUID() + "-" + safeOriginalFilename;
+        Path targetFile = uploadDirectory.resolve(storedFilename).normalize();
+        if (!targetFile.startsWith(uploadDirectory)) {
+            throw new IllegalArgumentException("非法的上传文件名");
+        }
+
+        // try-with-resources 会在复制完成或发生异常时自动关闭上传文件流。
+        try (InputStream inputStream = avatar.getInputStream()) {
+            Files.copy(inputStream, targetFile);
+        }
+
+        model.addAttribute("username", username);
+        model.addAttribute("originalFilename", originalFilename);
+        model.addAttribute("contentType", contentType);
+        model.addAttribute("fileSize", fileSize);
+        model.addAttribute("savedFile", targetFile.toString());
         return "first";
     }
 
