@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -132,6 +133,36 @@ public class TestController {
             @RequestParam("avatar") MultipartFile avatar,
             Model model
     ) throws IOException {
+        return saveProfile(username, avatar, model);
+    }
+
+    /**
+     * 对比五：使用 {@code @RequestPart} 分别读取 multipart 请求中的 JSON part 和文件 part。
+     *
+     * <p>{@code @RequestParam} 更适合普通文本表单字段；当某个 part 本身是 JSON、XML 等
+     * 结构化数据时，{@code @RequestPart} 会根据该 part 的 {@code Content-Type}，使用
+     * {@code HttpMessageConverter} 将内容转换为目标对象。</p>
+     *
+     * <p>可以使用 curl 发起请求：</p>
+     * <pre>{@code
+     * curl -X POST http://localhost:8080/springmvc-001/user/profile/request-part \
+     *      -F 'user={"username":"zhangsan","password":"123456"};type=application/json' \
+     *      -F "avatar=@D:/files/avatar.png"
+     * }</pre>
+     *
+     * <p>{@code user} part 必须声明为 {@code application/json}，并且项目需要配置 JSON
+     * 消息转换器（通常引入 {@code jackson-databind}）；否则无法转换为 {@link UserRequest}。</p>
+     */
+    @PostMapping(value = "/profile/request-part", consumes = "multipart/form-data")
+    public String updateProfileByRequestPart(
+            @RequestPart("user") UserRequest userRequest,
+            @RequestPart("avatar") MultipartFile avatar,
+            Model model
+    ) throws IOException {
+        return saveProfile(userRequest.username(), avatar, model);
+    }
+
+    private String saveProfile(String username, MultipartFile avatar, Model model) throws IOException {
         // 参数存在不代表用户一定选择了文件，空文件需要单独判断。
         if (avatar.isEmpty()) {
             throw new IllegalArgumentException("上传文件不能为空");
